@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VitalLife - Gesundheit, Ernährung & Bewegung</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                        mint: {
+                            100: '#e6fffa',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar & smooth transition */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .tab-active { @apply border-brand-600 text-brand-600 font-bold; }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="h-full text-slate-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 glass-card border-b border-slate-200/80 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+                    <div class="bg-gradient-to-tr from-brand-600 to-mint-500 text-white p-2.5 rounded-2xl shadow-md">
+                        <i class="fa-solid font-bold fa-heart-pulse text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold bg-gradient-to-r from-brand-700 to-mint-600 bg-clip-text text-transparent">VitalLife</span>
+                        <span class="block text-[10px] tracking-wider text-slate-400 font-semibold uppercase -mt-1">Gesundheits-Guide</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links (Desktop) -->
+                <nav class="hidden md:flex space-x-1 lg:space-x-2">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all text-brand-700 bg-brand-50">
+                        <i class="fa-solid fa-chart-pie mr-2"></i>Dashboard
+                    </button>
+                    <button onclick="switchTab('rezepte')" id="nav-rezepte" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition-all">
+                        <i class="fa-solid fa-utensils mr-2"></i>Rezepte
+                    </button>
+                    <button onclick="switchTab('superfoods')" id="nav-superfoods" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition-all">
+                        <i class="fa-solid fa-apple-whole mr-2"></i>Obst & Superfoods
+                    </button>
+                    <button onclick="switchTab('rechner')" id="nav-rechner" class="nav-btn px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-slate-100 transition-all">
+                        <i class="fa-solid fa-calculator mr-2"></i>Bedarfsrechner
+                    </button>
+                </nav>
+
+                <!-- Saved Favorites Button -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="openFavoritesModal()" class="relative p-2.5 rounded-xl bg-slate-100 hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors">
+                        <i class="fa-solid fa-bookmark text-lg"></i>
+                        <span id="fav-badge" class="hidden absolute -top-1 -right-1 bg-rose-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Bar -->
+        <div class="md:hidden border-t border-slate-100 bg-white px-2 py-2 flex justify-around text-xs font-semibold">
+            <button onclick="switchTab('dashboard')" id="mobile-nav-dashboard" class="flex flex-col items-center p-2 text-brand-600">
+                <i class="fa-solid fa-chart-pie text-lg mb-1"></i>Tracker
+            </button>
+            <button onclick="switchTab('rezepte')" id="mobile-nav-rezepte" class="flex flex-col items-center p-2 text-slate-500">
+                <i class="fa-solid fa-utensils text-lg mb-1"></i>Rezepte
+            </button>
+            <button onclick="switchTab('superfoods')" id="mobile-nav-superfoods" class="flex flex-col items-center p-2 text-slate-500">
+                <i class="fa-solid fa-apple-whole text-lg mb-1"></i>Obst
+            </button>
+            <button onclick="switchTab('rechner')" id="mobile-nav-rechner" class="flex flex-col items-center p-2 text-slate-500">
+                <i class="fa-solid fa-calculator text-lg mb-1"></i>Rechner
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= SECTION 1: DASHBOARD ================= -->
+        <div id="tab-dashboard" class="tab-content space-y-8">
+            <!-- Daily Goal Progress Header -->
+            <div class="bg-gradient-to-r from-brand-800 to-mint-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl pointer-events-none">
+                    <i class="fa-solid fa-heart-pulse"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase backdrop-blur-md">Tagesziel Status</span>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold mt-2 mb-3">Dein gesunder Tag im Überblick</h1>
+                    <p class="text-brand-100 text-sm sm:text-base leading-relaxed">
+                        Kleine tägliche Gewohnheiten führen zu großen gesundheitlichen Veränderungen. Verfolge deinen Fortschritt bei Bewegung, Wasseraufnahme und Ernährung.
+                    </p>
+                    <div class="mt-6 flex flex-wrap gap-4 items-center">
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl px-4 py-3 border border-white/20">
+                            <span class="text-xs text-brand-100 block">Gesamtforschritt</span>
+                            <span id="overall-progress-text" class="text-xl font-bold">0% Erreicht</span>
+                        </div>
+                        <button onclick="resetDailyChecklist()" class="text-xs bg-white/20 hover:bg-white/30 text-white font-medium px-4 py-3 rounded-xl transition">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Tag zurücksetzen
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Trackers Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Spaziergang & Bewegung Tracker -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-amber-100 text-amber-600 p-3 rounded-2xl">
+                                    <i class="fa-solid fa-shoe-prints text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Spaziergang</h3>
+                                    <p class="text-xs text-slate-500">Ziel: <span id="walk-target-display">45</span> Min / Tag</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Walk Timer & Counter -->
+                        <div class="text-center my-6 bg-slate-50 py-4 rounded-2xl border border-slate-100">
+                            <span id="walk-time-display" class="text-4xl font-extrabold text-slate-800 font-mono">00:00</span>
+                            <span class="block text-xs text-slate-400 mt-1">Gegangene Zeit (Min:Sek)</span>
+                        </div>
+
+                        <div class="w-full bg-slate-100 rounded-full h-2.5 mb-4">
+                            <div id="walk-progress-bar" class="bg-amber-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex gap-2">
+                            <button id="walk-start-btn" onclick="toggleWalkTimer()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                                <i class="fa-solid fa-play mr-1"></i> Start
+                            </button>
+                            <button onclick="addWalkMinutes(10)" class="bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold px-3 py-2.5 rounded-xl text-sm transition">
+                                +10 Min
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wasser-Tracker -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-blue-100 text-blue-600 p-3 rounded-2xl">
+                                    <i class="fa-solid fa-droplet text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Wasserbedarf</h3>
+                                    <p class="text-xs text-slate-500">Ziel: <span id="water-target-display">2.5</span> Liter</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-center my-6 bg-slate-50 py-4 rounded-2xl border border-slate-100">
+                            <span id="water-current-display" class="text-4xl font-extrabold text-blue-600">0.0</span>
+                            <span class="text-xl font-bold text-slate-400"> / <span id="water-target-num">2.5</span> L</span>
+                        </div>
+
+                        <div class="w-full bg-slate-100 rounded-full h-2.5 mb-4">
+                            <div id="water-progress-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="addWater(0.25)" class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold py-2.5 rounded-xl text-sm transition">
+                            +1 Glas (250ml)
+                        </button>
+                        <button onclick="addWater(0.5)" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                            +0.5 Liter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Täglicher Nährstoff-Check -->
+                <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-brand-100 text-brand-600 p-3 rounded-2xl">
+                                    <i class="fa-solid fa-carrot text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800">5 am Tag (Obst/Gemüse)</h3>
+                                    <p class="text-xs text-slate-500">Ziel: 5 Portionen täglich</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center items-center space-x-2 my-8">
+                            <template id="fruit-icon-template">
+                                <button class="fruit-portion-btn w-10 h-10 rounded-2xl bg-slate-100 text-slate-300 flex items-center justify-center text-lg transition-all hover:scale-105">
+                                    <i class="fa-solid fa-apple-whole"></i>
+                                </button>
+                            </template>
+                            <div id="fruit-portions-container" class="flex space-x-2"></div>
+                        </div>
+                    </div>
+
+                    <p class="text-center text-xs text-slate-400">Klicke auf die Symbole, um verzehrte Portionen abzuhaken.</p>
+                </div>
+            </div>
+
+            <!-- Daily Health Checklist -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
+                    <i class="fa-solid fa-list-check text-brand-600 mr-2"></i> Tägliche Gesundheits-Routine Checkliste
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="checklist-container">
+                    <!-- Dynamic Checklist Items -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SECTION 2: REZEPTE ================= -->
+        <div id="tab-rezepte" class="tab-content space-y-8 hidden">
+            <!-- Header & Filters -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800">Gesund & Lecker Kochen</h2>
+                    <p class="text-sm text-slate-500">Nährstoffreiche Rezepte für jeden Zeitpunkt des Tages.</p>
+                </div>
+
+                <!-- Category Filters -->
+                <div class="flex flex-wrap gap-2" id="recipe-filter-buttons">
+                    <button onclick="filterRecipes('all')" class="recipe-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-brand-600 text-white shadow-sm">Alle</button>
+                    <button onclick="filterRecipes('fruehstueck')" class="recipe-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Frühstück</button>
+                    <button onclick="filterRecipes('mittag')" class="recipe-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Mittagessen</button>
+                    <button onclick="filterRecipes('abend')" class="recipe-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Abendessen</button>
+                    <button onclick="filterRecipes('snack')" class="recipe-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Smoothies & Snacks</button>
+                </div>
+            </div>
+
+            <!-- Recipe Tagesplan Empfehlung Banner -->
+            <div class="bg-mint-100 border border-mint-500/30 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-mint-600 text-white p-3 rounded-2xl shrink-0">
+                        <i class="fa-solid fa-bullseye text-2xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm sm:text-base">Optimaler Tages-Nährstoffmix</h4>
+                        <p class="text-xs sm:text-sm text-slate-600">Achte täglich auf ca. 30g Ballaststoffe, hochwertige Proteine, gesunde Fette (Omega-3) und komplexe Kohlenhydrate.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipes Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="recipes-grid">
+                <!-- Recipe Cards rendered via JS -->
+            </div>
+        </div>
+
+        <!-- ================= SECTION 3: SUPERFOODS & OBST ================= -->
+        <div id="tab-superfoods" class="tab-content space-y-8 hidden">
+            <div>
+                <h2 class="text-2xl font-extrabold text-slate-800">Obst & Superfood Guide</h2>
+                <p class="text-sm text-slate-500">Entdecke die Vitaminbomben der Natur und was sie für deine Gesundheit tun.</p>
+            </div>
+
+            <!-- Superfoods Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="superfoods-grid">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+
+        <!-- ================= SECTION 4: BEDARFSRECHNER ================= -->
+        <div id="tab-rechner" class="tab-content space-y-8 hidden">
+            <div class="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md">
+                <div class="text-center mb-6">
+                    <div class="inline-block bg-brand-100 text-brand-700 p-3 rounded-2xl mb-2">
+                        <i class="fa-solid fa-calculator text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800">Persönlicher Gesundheits-Rechner</h2>
+                    <p class="text-xs sm:text-sm text-slate-500">Berechne deinen individuellen Wasserbedarf und deine ideale tägliche Bewegung.</p>
+                </div>
+
+                <form id="calc-form" onsubmit="calculateHealthNeeds(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Körpergewicht (kg)</label>
+                        <input type="number" id="calc-weight" min="30" max="200" value="70" required class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Aktivitätslevel</label>
+                        <select id="calc-activity" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="low">Sitzend / Wenig Bewegung</option>
+                            <option value="moderate" selected>Moderat (1-3x Sport/Woche oder Spaziergänge)</option>
+                            <option value="high">Sehr aktiv (Täglich viel Bewegung/Sport)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 rounded-xl shadow-md transition">
+                        Bedarf berechnen
+                    </button>
+                </form>
+
+                <!-- Results display -->
+                <div id="calc-results" class="mt-8 p-6 bg-brand-50 rounded-2xl border border-brand-200 hidden">
+                    <h3 class="font-bold text-brand-900 mb-3 text-center">Deine Empfehlungen:</h3>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div class="bg-white p-4 rounded-xl border border-brand-100 shadow-sm">
+                            <i class="fa-solid fa-droplet text-blue-500 text-xl mb-1"></i>
+                            <span class="block text-xs text-slate-500">Wasserbedarf</span>
+                            <span id="res-water" class="text-xl font-extrabold text-slate-800">2.4 L</span>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-brand-100 shadow-sm">
+                            <i class="fa-solid fa-person-walking text-amber-500 text-xl mb-1"></i>
+                            <span class="block text-xs text-slate-500">Spaziergang / Tag</span>
+                            <span id="res-walk" class="text-xl font-extrabold text-slate-800">45 Min</span>
+                        </div>
+                    </div>
+                    <button onclick="applyCalcResults()" class="w-full mt-4 bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold py-2.5 rounded-lg transition">
+                        Als Tagesziel übernehmen
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal für Favoriten/Merkliste -->
+    <div id="fav-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-extrabold text-lg text-slate-800"><i class="fa-solid fa-bookmark text-brand-600 mr-2"></i>Gespeicherte Favoriten</h3>
+                <button onclick="closeFavoritesModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div id="fav-list-container" class="overflow-y-auto flex-1 space-y-3 py-2">
+                <!-- Dynamically filled -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-400 space-y-2">
+            <p>VitalLife - Dein Begleiter für ein gesünderes Leben. Alle Daten werden lokal in deinem Browser gespeichert.</p>
+            <p>&copy; 2026 VitalLife Health Web-App</p>
+        </div>
+    </footer>
+
+    <script>
+        /* ================= STATE & STORAGE ================= */
+        const state = {
+            walkTimeSeconds: 0,
+            walkTargetMin: 45,
+            walkTimerRunning: false,
+            walkInterval: null,
+            waterCurrent: 0.0,
+            waterTarget: 2.5,
+            fruitPortions: 0,
+            favorites: JSON.parse(localStorage.getItem('vitallife_favs') || '[]'),
+            checklist: [
+                { id: 'water', label: 'Mind. 2 Liter Wasser trinken', done: false },
+                { id: 'walk', label: '30-45 Minuten spazieren gehen', done: false },
+                { id: 'fruit', label: '5 Portionen Obst & Gemüse', done: false },
+                { id: 'sleep', label: '7-8 Stunden erholsamer Schlaf', done: false },
+                { id: 'no_sugar', label: 'Keinen raffinierten Zucker snacken', done: false },
+                { id: 'fresh_air', label: '10 Min tief durchatmen an frischer Luft', done: false }
+            ]
+        };
+
+        /* ================= DATA ================= */
+        const recipesData = [
+            {
+                id: 1,
+                title: 'Beeren-Hafer-Bowl',
+                category: 'fruehstueck',
+                categoryName: 'Frühstück',
+                time: '10 Min',
+                calories: '350 kcal',
+                tags: ['Ballaststoffreich', 'Vegan'],
+                image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
+                ingredients: ['80g Haferflocken', '150ml Mandelmilch', '1 EL Chiasamen', '1 Handvoll frische Heidelbeeren', '1 TL Honig / Ahornsirup'],
+                description: 'Startet den Tag mit langanhaltender Energie und wertvollen Antioxidantien.'
+            },
+            {
+                id: 2,
+                title: 'Grüner Vital-Smoothie',
+                category: 'snack',
+                categoryName: 'Smoothie',
+                time: '5 Min',
+                calories: '210 kcal',
+                tags: ['Vitamin C', 'Detox'],
+                image: 'https://images.unsplash.com/photo-1610970881699-44a5587cabec?auto=format&fit=crop&w=600&q=80',
+                ingredients: ['1 Handvoll Blattspinat', '1/2 Avocado', '1 grüner Apfel', '200ml Kokoswasser', 'Saft einer halben Zitrone'],
+                description: 'Perfekt als Nährstoff-Kick am Nachmittag oder direkt nach dem Aufstehen.'
+            },
+            {
+                id: 3,
+                title: 'Quinoa-Gemüse-Bowl mit Avocado',
+                category: 'mittag',
+                categoryName: 'Mittagessen',
+                time: '25 Min',
+                calories: '520 kcal',
+                tags: ['Proteine', 'Glutenfrei'],
+                image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80',
+                ingredients: ['100g Quinoa', '1/2 Avocado', '100g Kichererbsen', 'Kirschtomaten, Gurke', 'Zitronen-Olivenöl-Dressing'],
+                description: 'Reich an pflanzlichem Protein und komplexen Kohlenhydraten für optimale Sättigung.'
+            },
+            {
+                id: 4,
+                title: 'Gedünsteter Lachs mit Brokkoli',
+                category: 'abend',
+                categoryName: 'Abendessen',
+                time: '20 Min',
+                calories: '480 kcal',
+                tags: ['Omega-3', 'Low-Carb'],
+                image: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600&q=80',
+                ingredients: ['150g Lachsfilet', '200g Brokkoli', '1 TL Olivenöl', 'Zitronenscheiben', 'Kräuter der Provence'],
+                description: 'Leicht bekömmliches Abendessen mit gesunden Fettsäuren für die Zellregeneration.'
+            }
+        ];
+
+        const superfoodsData = [
+            {
+                name: 'Blaubeeren / Heidelbeeren',
+                tag: 'Antioxidantien-König',
+                icon: 'fa-cubes-stacked',
+                color: 'bg-indigo-50 text-indigo-600',
+                benefits: 'Schützen vor freien Radikalen, fördern die Gehirnfunktion und stärken das Immunsystem.',
+                vitamins: 'Vitamin C, K, Mangan'
+            },
+            {
+                name: 'Avocado',
+                tag: 'Gesunde Fette',
+                icon: 'fa-seedling',
+                color: 'bg-emerald-50 text-emerald-600',
+                benefits: 'Liefert einfach ungesättigte Fettsäuren, unterstützt das Herz-Kreislauf-System.',
+                vitamins: 'Vitamin E, B6, Kalium'
+            },
+            {
+                name: 'Citrusfrüchte (Orangen/Zitronen)',
+                tag: 'Immun-Booster',
+                icon: 'fa-sun',
+                color: 'bg-amber-50 text-amber-600',
+                benefits: 'Stärken die Abwehrkräfte, fördern die Kollagenbildung und verbessern Eisenaufnahme.',
+                vitamins: 'Hoher Vitamin C Gehalt'
+            },
+            {
+                name: 'Äpfel',
+                tag: 'Darm-Freund',
+                icon: 'fa-apple-whole',
+                color: 'bg-rose-50 text-rose-600',
+                benefits: 'Enthalten den Ballaststoff Pektin, welcher die gesunde Darmflora unterstützt.',
+                vitamins: 'Vitamin C, Ballaststoffe'
+            }
+        ];
+
+        /* ================= APP INITIALIZATION ================= */
+        window.onload = function() {
+            renderFruitPortions();
+            renderChecklist();
+            renderRecipes(recipesData);
+            renderSuperfoods();
+            updateFavBadge();
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-brand-700', 'bg-brand-50');
+                btn.classList.add('text-slate-600');
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('text-brand-700', 'bg-brand-50');
+                activeBtn.classList.remove('text-slate-600');
+            }
+        }
+
+        function toggleWalkTimer() {
+            const btn = document.getElementById('walk-start-btn');
+            if(state.walkTimerRunning) {
+                clearInterval(state.walkInterval);
+                state.walkTimerRunning = false;
+                btn.innerHTML = '<i class="fa-solid fa-play mr-1"></i> Fortsetzen';
+                btn.classList.replace('bg-red-500', 'bg-amber-500');
+            } else {
+                state.walkTimerRunning = true;
+                btn.innerHTML = '<i class="fa-solid fa-pause mr-1"></i> Pause';
+                btn.classList.replace('bg-amber-500', 'bg-red-500');
+                state.walkInterval = setInterval(() => {
+                    state.walkTimeSeconds++;
+                    updateWalkUI();
+                }, 1000);
+            }
+        }
+
+        function addWalkMinutes(mins) {
+            state.walkTimeSeconds += mins * 60;
+            updateWalkUI();
+        }
+
+        function updateWalkUI() {
+            const mins = Math.floor(state.walkTimeSeconds / 60);
+            const secs = state.walkTimeSeconds % 60;
+            document.getElementById('walk-time-display').innerText = 
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            
+            const progress = Math.min(100, (mins / state.walkTargetMin) * 100);
+            document.getElementById('walk-progress-bar').style.width = `${progress}%`;
+
+            if(mins >= state.walkTargetMin) {
+                markChecklistItem('walk', true);
+            }
+            calculateOverallProgress();
+        }
+
+        function addWater(amount) {
+            state.waterCurrent = Math.min(5, +(state.waterCurrent + amount).toFixed(2));
+            updateWaterUI();
+        }
+
+        function updateWaterUI() {
+            document.getElementById('water-current-display').innerText = state.waterCurrent.toFixed(1);
+            const progress = Math.min(100, (state.waterCurrent / state.waterTarget) * 100);
+            document.getElementById('water-progress-bar').style.width = `${progress}%`;
+
+            if(state.waterCurrent >= state.waterTarget) {
+                markChecklistItem('water', true);
+            }
+            calculateOverallProgress();
+        }
+
+        function renderFruitPortions() {
+            const container = document.getElementById('fruit-portions-container');
+            container.innerHTML = '';
+            for(let i = 1; i <= 5; i++) {
+                const btn = document.createElement('button');
+                btn.className = `w-10 h-10 rounded-2xl flex items-center justify-center text-lg transition-all hover:scale-105 ${i <= state.fruitPortions ? 'bg-brand-500 text-white shadow-md' : 'bg-slate-100 text-slate-300'}`;
+                btn.innerHTML = '<i class="fa-solid fa-apple-whole"></i>';
+                btn.onclick = () => {
+                    state.fruitPortions = i === state.fruitPortions ? i - 1 : i;
+                    renderFruitPortions();
+                    if(state.fruitPortions >= 5) markChecklistItem('fruit', true);
+                    calculateOverallProgress();
+                };
+                container.appendChild(btn);
+            }
+        }
+
+        function renderChecklist() {
+            const container = document.getElementById('checklist-container');
+            container.innerHTML = '';
+            state.checklist.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `p-3.5 rounded-2xl border flex items-center justify-between cursor-pointer transition ${item.done ? 'bg-brand-50 border-brand-200 text-brand-900' : 'bg-slate-50 border-slate-200/60 text-slate-600'}`;
+                card.onclick = () => toggleChecklistItem(item.id);
+                card.innerHTML = `
+                    <span class="text-xs sm:text-sm font-semibold ${item.done ? 'line-through opacity-80' : ''}">${item.label}</span>
+                    <div class="w-6 h-6 rounded-lg flex items-center justify-center ${item.done ? 'bg-brand-600 text-white' : 'border border-slate-300 bg-white'}">
+                        ${item.done ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            calculateOverallProgress();
+        }
+
+        function toggleChecklistItem(id) {
+            const item = state.checklist.find(i => i.id === id);
+            if(item) {
+                item.done = !item.done;
+                renderChecklist();
+            }
+        }
+
+        function markChecklistItem(id, done) {
+            const item = state.checklist.find(i => i.id === id);
+            if(item && !item.done) {
+                item.done = done;
+                renderChecklist();
+            }
+        }
+
+        function resetDailyChecklist() {
+            state.walkTimeSeconds = 0;
+            state.waterCurrent = 0;
+            state.fruitPortions = 0;
+            state.checklist.forEach(i => i.done = false);
+            updateWalkUI();
+            updateWaterUI();
+            renderFruitPortions();
+            renderChecklist();
+        }
+
+        function calculateOverallProgress() {
+            const doneCount = state.checklist.filter(i => i.done).length;
+            const percentage = Math.round((doneCount / state.checklist.length) * 100);
+            document.getElementById('overall-progress-text').innerText = `${percentage}% Erreicht`;
+        }
+
+        function renderRecipes(recipes) {
+            const container = document.getElementById('recipes-grid');
+            container.innerHTML = '';
+
+            recipes.forEach(r => {
+                const isFav = state.favorites.some(f => f.id === r.id);
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-3xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-md transition flex flex-col";
+                card.innerHTML = `
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="${r.image}" alt="${r.title}" class="w-full h-full object-cover">
+                        <button onclick="toggleFavorite(${r.id})" class="absolute top-3 right-3 p-2 rounded-xl bg-white/80 backdrop-blur-md ${isFav ? 'text-rose-500' : 'text-slate-400'} hover:scale-110 transition">
+                            <i class="fa-solid fa-heart"></i>
+                        </button>
+                        <span class="absolute bottom-3 left-3 bg-slate-900/60 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg backdrop-blur-md uppercase tracking-wider">${r.categoryName}</span>
+                    </div>
+                    <div class="p-5 flex-1 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-slate-400 font-medium mb-2">
+                                <span><i class="fa-regular fa-clock mr-1"></i>${r.time}</span>
+                                <span><i class="fa-solid fa-fire mr-1"></i>${r.calories}</span>
+                            </div>
+                            <h3 class="font-bold text-slate-800 text-base mb-2">${r.title}</h3>
+                            <p class="text-xs text-slate-500 mb-4 line-clamp-2">${r.description}</p>
+                        </div>
+                        <div>
+                            <div class="flex flex-wrap gap-1 mb-4">
+                                ${r.tags.map(t => `<span class="bg-brand-50 text-brand-700 text-[10px] font-bold px-2 py-0.5 rounded-md">${t}</span>`).join('')}
+                            </div>
+                            <button onclick="openRecipeDetails(${r.id})" class="w-full bg-slate-100 hover:bg-brand-600 hover:text-white text-slate-700 font-bold py-2 rounded-xl text-xs transition">
+                                Rezept ansehen
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterRecipes(category) {
+            document.querySelectorAll('.recipe-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+            event.target.classList.add('bg-brand-600', 'text-white');
+            event.target.classList.remove('bg-slate-100', 'text-slate-600');
+
+            if(category === 'all') {
+                renderRecipes(recipesData);
+            } else {
+                const filtered = recipesData.filter(r => r.category === category);
+                renderRecipes(filtered);
+            }
+        }
+
+        function toggleFavorite(recipeId) {
+            const recipe = recipesData.find(r => r.id === recipeId);
+            const index = state.favorites.findIndex(f => f.id === recipeId);
+            if(index > -1) {
+                state.favorites.splice(index, 1);
+            } else if(recipe) {
+                state.favorites.push(recipe);
+            }
+            localStorage.setItem('vitallife_favs', JSON.stringify(state.favorites));
+            updateFavBadge();
+            renderRecipes(recipesData);
+            renderFavoritesList();
+        }
+
+        function updateFavBadge() {
+            const badge = document.getElementById('fav-badge');
+            if(state.favorites.length > 0) {
+                badge.innerText = state.favorites.length;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function openFavoritesModal() {
+            renderFavoritesList();
+            document.getElementById('fav-modal').classList.remove('hidden');
+        }
+
+        function closeFavoritesModal() {
+            document.getElementById('fav-modal').classList.add('hidden');
+        }
+
+        function renderFavoritesList() {
+            const container = document.getElementById('fav-list-container');
+            if(state.favorites.length === 0) {
+                container.innerHTML = '<p class="text-center text-xs text-slate-400 py-6">Noch keine Favoriten gespeichert.</p>';
+                return;
+            }
+            container.innerHTML = state.favorites.map(f => `
+                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-2xl">
+                    <div class="flex items-center space-x-3">
+                        <img src="${f.image}" class="w-12 h-12 rounded-xl object-cover">
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-800">${f.title}</h4>
+                            <span class="text-[10px] text-slate-400">${f.categoryName} • ${f.calories}</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleFavorite(${f.id})" class="text-rose-500 hover:text-rose-700 p-2 text-xs">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderSuperfoods() {
+            const container = document.getElementById('superfoods-grid');
+            container.innerHTML = superfoodsData.map(s => `
+                <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-12 h-12 rounded-2xl ${s.color} flex items-center justify-center text-xl mb-4">
+                            <i class="fa-solid ${s.icon}"></i>
+                        </div>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">${s.tag}</span>
+                        <h3 class="font-bold text-slate-800 text-base mb-2">${s.name}</h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mb-4">${s.benefits}</p>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <span class="block text-[10px] text-slate-400 font-semibold uppercase">Wichtige Nährstoffe</span>
+                        <span class="text-xs font-bold text-slate-700">${s.vitamins}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function calculateHealthNeeds(e) {
+            e.preventDefault();
+            const weight = parseFloat(document.getElementById('calc-weight').value);
+            const activity = document.getElementById('calc-activity').value;
+
+            let water = (weight * 0.035).toFixed(1);
+            let walkMin = 30;
+
+            if(activity === 'moderate') walkMin = 45;
+            if(activity === 'high') walkMin = 60;
+
+            document.getElementById('res-water').innerText = `${water} Liter`;
+            document.getElementById('res-walk').innerText = `${walkMin} Min`;
+            document.getElementById('calc-results').classList.remove('hidden');
+
+            state.tempWater = parseFloat(water);
+            state.tempWalk = walkMin;
+        }
+
+        function applyCalcResults() {
+            if(state.tempWater) {
+                state.waterTarget = state.tempWater;
+                document.getElementById('water-target-display').innerText = state.tempWater;
+                document.getElementById('water-target-num').innerText = state.tempWater;
+            }
+            if(state.tempWalk) {
+                state.walkTargetMin = state.tempWalk;
+                document.getElementById('walk-target-display').innerText = state.tempWalk;
+            }
+            switchTab('dashboard');
+        }
+    </script>
+</body>
+</html>
